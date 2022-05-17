@@ -1,6 +1,7 @@
 #pragma once
 
 #include <FastLED.h>
+#include "strings.h"
 
 const int NUM_LEDS = 290;
 const int LED_DATA_PIN = 7;
@@ -149,12 +150,12 @@ private:
     inline const char *territory_to_name(territory_name_t t) {
 //        return territory_names[(int) t];
         switch (t) {
-            case HORSERACE_TERRITORY:    return "Gene Pool Field";
-            case GATES_TERRITORY:        return ""; // never used
-            case FEAR_TERRITORY:         return "Fear";
-            case ATH_TERRITORY:          return "the Ath";
-            case ANNENBERG_TERRITORY:    return "Annenberg Lounge";
-            case BRIDGE_TERRITORY:       return "Bridge 210";
+            case HORSERACE_TERRITORY:    return retrieve_string(9);
+            case GATES_TERRITORY:        return retrieve_string(10);
+            case FEAR_TERRITORY:         return retrieve_string(11);
+            case ATH_TERRITORY:          return retrieve_string(12);
+            case ANNENBERG_TERRITORY:    return retrieve_string(13);
+            case BRIDGE_TERRITORY:       return retrieve_string(14);
             default:                     return "";
         }
     }
