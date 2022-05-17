@@ -8,13 +8,16 @@
 const int DATA  = 1;
 const int CLOCK = 2;
 
-// saves on memory by declaring strings here
+// possibly saves on memory by declaring strings here
 const char *team1_name = "Team Pacino";
 const char *team2_name = "Team Pacino";
 const char *directions_choice = "Get directions";
 const char *input_codeword_choice = "Input codeword";
 const char *message_correct = "Correct!";
 const char *message_incorrect = "Incorrect. You may choose to continue to the next location.";
+const char *terr_unlocked_msg = "New Territory Unlocked";
+const char *keep_trying_choice = "Keep trying";
+const char *skip_puzzle_choice = "Skip Puzzle";
 
 // red 5v, black ground, white data, green clock
 Display lcd;
@@ -22,7 +25,7 @@ Display lcd;
 // red 5v, white ground, green data
 Territories territories;
 
-void scan_I2C_devices();
+//void scan_I2C_devices();
 
 void setup()
 {
@@ -72,9 +75,9 @@ void loop() {
       lcd.display_message(message_incorrect);
       
       // Maybe we want to give them the option to skip anyway
-      int force_progress = lcd.get_user_choice("Keep trying", "Skip puzzle");
+      int force_progress = lcd.get_user_choice(keep_trying_choice, skip_puzzle_choice);
       if (force_progress) {
-        lcd.display_message("New territory unlocked");
+        lcd.display_message(terr_unlocked_msg);
         territories.force_progress(team);  
       }
     }
@@ -126,26 +129,26 @@ SIGNAL(TIMER0_COMPA_vect)
   }
 
 }
-
-void scan_I2C_devices() {
-  Serial.println ();
-    Serial.println ("I2C scanner. Scanning ...");
-    byte count = 0;
-    Wire.begin();
-    for (byte i = 8; i < 120; i++) {
-      Wire.beginTransmission (i);
-      if (Wire.endTransmission () == 0) {
-        Serial.print ("Found address: ");
-        Serial.print (i, DEC);
-        Serial.print (" (0x");
-        Serial.print (i, HEX);
-        Serial.println (")");
-        count++;
-        delay (1);  // maybe unneeded?
-      } // end of good response
-    } // end of for loop
-    Serial.println ("Done.");
-    Serial.print ("Found ");
-    Serial.print (count, DEC);
-    Serial.println (" device(s).");
-}
+//
+//void scan_I2C_devices() {
+//  Serial.println ();
+//    Serial.println ("I2C scanner. Scanning ...");
+//    byte count = 0;
+//    Wire.begin();
+//    for (byte i = 8; i < 120; i++) {
+//      Wire.beginTransmission (i);
+//      if (Wire.endTransmission () == 0) {
+//        Serial.print ("Found address: ");
+//        Serial.print (i, DEC);
+//        Serial.print (" (0x");
+//        Serial.print (i, HEX);
+//        Serial.println (")");
+//        count++;
+//        delay (1);  // maybe unneeded?
+//      } // end of good response
+//    } // end of for loop
+//    Serial.println ("Done.");
+//    Serial.print ("Found ");
+//    Serial.print (count, DEC);
+//    Serial.println (" device(s).");
+//}

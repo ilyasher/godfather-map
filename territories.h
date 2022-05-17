@@ -57,11 +57,11 @@ public:
         light_clock++;
     }
 
-    const char *get_directions(int team) {
+    inline const char *get_directions(int team) {
         return territory_to_name((territory_name_t) progress[team]);
     }
 
-    team_t get_horserace_winner() {
+    inline team_t get_horserace_winner() {
         return ownership_status[HORSERACE_TERRITORY];
     }
 
@@ -146,13 +146,13 @@ private:
         }
     }
     
-    const char *territory_to_name(territory_name_t t) {
+    inline const char *territory_to_name(territory_name_t t) {
 //        return territory_names[(int) t];
         switch (t) {
-            case HORSERACE_TERRITORY:    return "Field South of Gene Pool";
-            case GATES_TERRITORY:        return "Gates-Thomas 314";
+            case HORSERACE_TERRITORY:    return "Gene Pool Field";
+            case GATES_TERRITORY:        return ""; // never used
             case FEAR_TERRITORY:         return "Fear";
-            case ATH_TERRITORY:          return "the Einstein Casino in the Ath";
+            case ATH_TERRITORY:          return "the Ath";
             case ANNENBERG_TERRITORY:    return "Annenberg Lounge";
             case BRIDGE_TERRITORY:       return "Bridge 210";
             default:                     return "";
