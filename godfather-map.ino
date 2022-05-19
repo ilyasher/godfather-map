@@ -20,12 +20,10 @@ Territories territories;
 
 void setup()
 {
-//  Serial.begin(9600);
+  Serial.begin(115200);
   territories.init();
   lcd.init();
-//  lcd.welcome();
-//  delay(2000);
-
+  
   // Interrupts necessary for key presses to work
   noInterrupts();
 
@@ -94,12 +92,23 @@ void loop() {
     }
   }
 }
-
+//
 
 /* Interrupt handler for keyboard presses/releases. */
+
 ISR(PCINT1_vect)      // interrupt service routine
 {
 noInterrupts();
+//  static unsigned long last_keypress_time = 0;
+
+//  unsigned long ms = millis();
+//  Serial.println(ms);
+//  Serial.println(last_keypress_time);
+//  if (ms - last_keypress_time < 10) {
+////interrupts();
+//    return;
+//  }
+
   int val = 0;
   char key = '\0';
   for(int i=0; i<11; i++)
@@ -107,8 +116,10 @@ noInterrupts();
     while(bitRead(PINC, CLOCK) == true);
     val |= bitRead(PINC, DATA)<<i;
     while(bitRead(PINC, CLOCK) == false);
+    Serial.print(i);
   }
   val = (val>>1) & 255;
+  Serial.println();
 
   static bool keyReleased = false;
   switch (val)
@@ -121,6 +132,7 @@ noInterrupts();
     default:
       if (!keyReleased) // don't log key releases
       {
+//        key = access_keymap(val);
         key = keymap[val];
       }
       keyReleased = false;
@@ -136,7 +148,7 @@ noInterrupts();
 //  Serial.println(key);
 //#endif
 
-
+//  last_keypress_time = ms;
 
   PCIFR = 0x02;                           // clears the PCI flag 1
 interrupts();

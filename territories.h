@@ -4,7 +4,8 @@
 #include "strings.h"
 
 // "const int" uses no additional memory
-const int NUM_LEDS = 290;
+const int NUM_LEDS = 265;
+//const int NUM_LEDS = 200;
 const int LED_DATA_PIN = 7;
 
 const int TEAM_NEITHER = 0b00;
@@ -53,6 +54,9 @@ public:
             // Calculate the index of the light to turn on
             int start_i = leds_start_end[terr_i][0];
             int end_i   = leds_start_end[terr_i][1];
+            if (end_i == 255) {
+                end_i = 264;
+            }
             int len = end_i - start_i + 1;
             int index = start_i + (light_clock % len);
 
@@ -147,16 +151,16 @@ public:
             }
         }
         else if (!strcmp(guess, "CAUSEWAY")) {
-            if ((team == TEAM1 && progress[team] == 4)
-              ||(team == TEAM2 && progress[team] == 5)) {
+            if ((team == TEAM2 && progress[team] == 4)
+              ||(team == TEAM1 && progress[team] == 5)) {
                 add_owner_to_territory(team, BRIDGE_TERRITORY);
                 progress[team]++;
                 return true;
             }
         }
         else if (!strcmp(guess, "TATTAGLIA")) {
-            if ((team == TEAM1 && progress[team] == 5)
-              ||(team == TEAM2 && progress[team] == 4)) {
+            if ((team == TEAM2 && progress[team] == 5)
+              ||(team == TEAM1 && progress[team] == 4)) {
                 add_owner_to_territory(team, ANNENBERG_TERRITORY);
                 progress[team]++;
                 return true;
@@ -191,14 +195,14 @@ private:
         NUM_TERRITORIES,
     };
 
-    const int leds_start_end[NUM_TERRITORIES][2] = {
+    const byte leds_start_end[NUM_TERRITORIES][2] = {
         {7, 95},
         {97, 132},
         {133, 150},
         {151, 182},
         {183, 217},
         {218, 249},
-        {250, 289}
+        {250, 255}
     };
 
     int ownership_status[NUM_TERRITORIES] = {TEAM_NEITHER};
@@ -237,6 +241,7 @@ private:
             case ATH_TERRITORY:          return 12;
             case ANNENBERG_TERRITORY:    return 13;
             case BRIDGE_TERRITORY:       return 14;
+            case ARMS_TERRITORY:         return 15;
             default:                     return 10;
         }
     }

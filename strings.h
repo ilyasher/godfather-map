@@ -33,10 +33,11 @@ const char string_11[] PROGMEM = "Go to Fear";
 const char string_12[] PROGMEM = "Go to the Einstein Casino in the Ath";
 const char string_13[] PROGMEM = "Go to Annenberg 2nd floor Lounge";
 const char string_14[] PROGMEM = "Go to Bridge 210";
+const char string_15[] PROGMEM = "Watch the Senator video";
 
 // Then set up a table to refer to your strings.
 const char *const string_table[] PROGMEM = {string_0, string_1, string_2, string_3, string_4, string_5,
-  string_6, string_7, string_8, string_9, string_10, string_11, string_12, string_13, string_14};
+  string_6, string_7, string_8, string_9, string_10, string_11, string_12, string_13, string_14, string_15};
 
 char buff[64];  // make sure this is large enough for the largest string it must hold
 
