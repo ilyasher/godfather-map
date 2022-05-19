@@ -29,13 +29,14 @@ public:
     // move the lights around in a circle around the different territories
     // called every 100ms or so
     void tick_lights(void) {
-        Serial.println("ticked"); // debug
+//        Serial.println("ticked"); // debug
 
         // Turn all the lights off
         memset(leds, CRGB::Black, sizeof(*leds) * NUM_LEDS);
 
         // Celebration
         if (progress[0] == 7) {
+//        if (true) {
             for (int i = 0; i < NUM_LEDS; i++) {
                 if ((i + light_clock) % 30 == 0) {
                     leds[i] = CRGB::Green;
@@ -79,7 +80,10 @@ public:
         light_clock++;
     }
 
-    inline const char *get_directions(int team) {
+    inline STR_IDX_T get_directions(int team) {
+//        Serial.println(get_next_territory(team));
+//        Serial.println(territory_to_name(get_next_territory(team));
+//        return 0;
         return territory_to_name(get_next_territory(team));
     }
 
@@ -88,12 +92,12 @@ public:
     }
 
     bool guess_codeword(const char *guess, int team) {
-#if 1
-        Serial.print("Team #");
-        Serial.print(team);
-        Serial.print(" guessed codeword '");
-        Serial.print(guess);
-        Serial.println("'");
+#if 0
+//        Serial.print("Team #");
+//        Serial.print(team);
+//        Serial.print(" guessed codeword '");
+//        Serial.print(guess);
+//        Serial.println("'");
 #endif
         if      (!strcmp(guess, "BADNEWS")) {
             if (progress[team] == 0) {
@@ -225,15 +229,15 @@ private:
         ownership_status[territory] |= new_owner;
     }
     
-    inline const char *territory_to_name(territory_name_t t) {
+    inline STR_IDX_T territory_to_name(territory_name_t t) {
         switch (t) {
-            case HORSERACE_TERRITORY:    return retrieve_string(9);
-            case GATES_TERRITORY:        return retrieve_string(10);
-            case FEAR_TERRITORY:         return retrieve_string(11);
-            case ATH_TERRITORY:          return retrieve_string(12);
-            case ANNENBERG_TERRITORY:    return retrieve_string(13);
-            case BRIDGE_TERRITORY:       return retrieve_string(14);
-            default:                     return "";
+            case HORSERACE_TERRITORY:    return 9;
+            case GATES_TERRITORY:        return 10;
+            case FEAR_TERRITORY:         return 11;
+            case ATH_TERRITORY:          return 12;
+            case ANNENBERG_TERRITORY:    return 13;
+            case BRIDGE_TERRITORY:       return 14;
+            default:                     return 10;
         }
     }
 

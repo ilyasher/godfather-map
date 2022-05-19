@@ -1,6 +1,7 @@
 #pragma once
 
 #include "keymap.h"
+#include "strings.h"
 
 class Display {
 public:
@@ -18,22 +19,22 @@ public:
     }
 
     /* Display welcome message. */
-    void welcome() {
-        clear_screen();
-        lcd.setCursor(4,0);
-        lcd.print("Welcome");
-    }
+//    void welcome() {
+//        clear_screen();
+//        lcd.setCursor(4,0);
+//        lcd.print("Welcome");
+//    }
 
     /* Prompt user to choose between choice1 and choice2,
      * and wait until the Enter key is pressed. 
      * Note: choices are cut off after 14 chars. */
-    int get_user_choice(const char *choice1, const char *choice2) {
+    int get_user_choice(STR_IDX_T choice1, STR_IDX_T choice2) {
         clear_screen();
         lcd.print("> ");
-        lcd.print(choice1);
+        lcd.print(retrieve_string(choice1));
         lcd.setCursor(0,1);
         lcd.print("  ");
-        lcd.print(choice2);
+        lcd.print(retrieve_string(choice2));
         
         int choice = 0;
         while (key != KEY_ENTER) {
@@ -61,9 +62,9 @@ public:
      * to enter text on the second line. Respond to keyboard inputs
      * until the Enter key is pressed, after which the inputted word
      * is returned. */
-    char *get_user_input(const char *question) {
+    char *get_user_input(STR_IDX_T question) {
         clear_screen();
-        lcd.print(question);
+        lcd.print(retrieve_string(question));
         lcd.setCursor(0,1);
         lcd.print(prompt);
         lcd.cursor();
@@ -109,8 +110,12 @@ public:
 
     /* Display a message on the first line of the screen. 
      * Wait until the user hits the Enter key. */
-    void display_message(const char *msg) {
-      
+    void display_message(STR_IDX_T msg) {
+        const char *msg_s = retrieve_string(msg);
+        display_message_buffer(msg_s);
+    }
+
+    void display_message_buffer(const char *msg) {
         if (strlen(msg) > 16) {
             return display_long_message(msg);
         }

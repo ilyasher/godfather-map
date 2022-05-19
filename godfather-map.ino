@@ -10,7 +10,7 @@
 const int DATA  = 1;
 const int CLOCK = 2;
 
-const int LIGHT_UPDATE_INTERVAL = 100; // in milliseconds
+const int LIGHT_UPDATE_INTERVAL = 200; // in milliseconds
 
 // Display wiring: red 5v, black ground, white data, green clock
 Display lcd;
@@ -18,15 +18,13 @@ Display lcd;
 // LED wiring: red 5v, white ground, green data
 Territories territories;
 
-//void scan_I2C_devices();
-
 void setup()
 {
-  Serial.begin(9600);
+//  Serial.begin(9600);
   territories.init();
   lcd.init();
-  lcd.welcome();
-  delay(2000);
+//  lcd.welcome();
+//  delay(2000);
 
   // Interrupts necessary for key presses to work
   noInterrupts();
@@ -45,47 +43,52 @@ void setup()
 void loop() {
 
   // Choose between "Get directions" and "Input Keyword"
-  int directions_or_codeword = lcd.get_user_choice(retrieve_string(2), retrieve_string(3));
+  int directions_or_codeword = lcd.get_user_choice(2, 3);
 
   // Choose between "Team Pacino" and "Team Brando"
   // Note: increment by 1 because team is either 1 or 2
-  int team = lcd.get_user_choice(retrieve_string(0), retrieve_string(1)) + 1;
+  int team = lcd.get_user_choice(0, 1) + 1;
+
+  Serial.print(directions_or_codeword);
+  Serial.println(team);
 
   if (directions_or_codeword == 0)
   {  
     // Want directions
-    const char *directions = territories.get_directions(team);
+//    STR_IDX_T directions = territories.get_directions(team);
+//    Serial.println("Got here");
 
     // Using global buff from strings.h to save on memory
-    memset(buff, '\0', sizeof(buff));
-    strcat(buff, "Go to ");
-    strcat(buff, directions);
-    lcd.display_message(buff);
+//    memset(buff, '\0', sizeof(buff));
+//    strcat(buff, "Go to ");
+//    strcat(buff, retrieve_string(0));
+//    strcat(buff, retrieve_string(directions));
+    lcd.display_message_buffer(retrieve_string(territories.get_directions(team)));
   } else 
   {
     // Want to input codeword
 
     // Prompt with "Input codeword" and wait for answer
-    char *codeword = lcd.get_user_input(retrieve_string(3));
+    char *codeword = lcd.get_user_input(3);
     
     if (territories.guess_codeword(codeword, team)) {
       // Got it right!
       // Display "Correct!"
-      lcd.display_message(retrieve_string(4));
+      lcd.display_message(4);
 
       // Display "New territory unlocked!"
-      lcd.display_message(retrieve_string(6));
+      lcd.display_message(6);
       
     } else {
       // Got it wrong
       // Display "Incorrect, try again or skip"
-      lcd.display_message(retrieve_string(5));
+      lcd.display_message(5);
       
       // Select between "Keep trying" and "Skip"
-      int force_progress = lcd.get_user_choice(retrieve_string(7), retrieve_string(8));
+      int force_progress = lcd.get_user_choice(7, 8);
       if (force_progress) {
         // Display "New territory unlocked!"
-        lcd.display_message(retrieve_string(6));
+        lcd.display_message(6);
         territories.force_progress(team);  
       }
     }
@@ -96,6 +99,7 @@ void loop() {
 /* Interrupt handler for keyboard presses/releases. */
 ISR(PCINT1_vect)      // interrupt service routine
 {
+noInterrupts();
   int val = 0;
   char key = '\0';
   for(int i=0; i<11; i++)
@@ -117,51 +121,33 @@ ISR(PCINT1_vect)      // interrupt service routine
     default:
       if (!keyReleased) // don't log key releases
       {
-        key = access_keymap(val);
+        key = keymap[val];
       }
       keyReleased = false;
       break;
   }
 
-#if 1
-  Serial.print("Key value: ");
-  Serial.println(val);
-  Serial.print("Key char: ");
-  Serial.println(key);
-#endif
-
   lcd.key = key;
 
+//#if 0
+//  Serial.print("KV: ");
+//  Serial.println(val);
+//  Serial.print("KC: ");
+//  Serial.println(key);
+//#endif
+
+
+
   PCIFR = 0x02;                           // clears the PCI flag 1
+interrupts();
 }
 
 SIGNAL(TIMER0_COMPA_vect) 
 {
+noInterrupts();
   unsigned long currentMillis = millis();
   if (currentMillis % LIGHT_UPDATE_INTERVAL == 0) {
       territories.tick_lights();
   }
+interrupts();
 }
-//
-//void scan_I2C_devices() {
-//  Serial.println ();
-//    Serial.println ("I2C scanner. Scanning ...");
-//    byte count = 0;
-//    Wire.begin();
-//    for (byte i = 8; i < 120; i++) {
-//      Wire.beginTransmission (i);
-//      if (Wire.endTransmission () == 0) {
-//        Serial.print ("Found address: ");
-//        Serial.print (i, DEC);
-//        Serial.print (" (0x");
-//        Serial.print (i, HEX);
-//        Serial.println (")");
-//        count++;
-//        delay (1);  // maybe unneeded?
-//      } // end of good response
-//    } // end of for loop
-//    Serial.println ("Done.");
-//    Serial.print ("Found ");
-//    Serial.print (count, DEC);
-//    Serial.println (" device(s).");
-//}
