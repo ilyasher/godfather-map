@@ -235,8 +235,8 @@ private:
             case 1: return team == horserace_loser ? ATH_TERRITORY : FEAR_TERRITORY;
             case 2: return team == horserace_loser ? FEAR_TERRITORY : ATH_TERRITORY;
             case 3: return ARMS_TERRITORY;
-            case 4: return team == TEAM1 ? BRIDGE_TERRITORY : ANNENBERG_TERRITORY;
-            case 5: return team == TEAM2 ? BRIDGE_TERRITORY : ANNENBERG_TERRITORY;
+            case 4: return team == TEAM1 ? ANNENBERG_TERRITORY : BRIDGE_TERRITORY;
+            case 5: return team == TEAM2 ? ANNENBERG_TERRITORY : BRIDGE_TERRITORY;
             default: return GATES_TERRITORY;
         }
     }
