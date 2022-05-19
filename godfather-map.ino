@@ -48,7 +48,8 @@ void loop() {
   int directions_or_codeword = lcd.get_user_choice(retrieve_string(2), retrieve_string(3));
 
   // Choose between "Team Pacino" and "Team Brando"
-  int team = lcd.get_user_choice(retrieve_string(0), retrieve_string(1));
+  // Note: increment by 1 because team is either 1 or 2
+  int team = lcd.get_user_choice(retrieve_string(0), retrieve_string(1)) + 1;
 
   if (directions_or_codeword == 0)
   {  
@@ -121,8 +122,14 @@ ISR(PCINT1_vect)      // interrupt service routine
       keyReleased = false;
       break;
   }
+
+#if 1
+  Serial.print("Key value: ");
   Serial.println(val);
+  Serial.print("Key char: ");
   Serial.println(key);
+#endif
+
   lcd.key = key;
 
   PCIFR = 0x02;                           // clears the PCI flag 1

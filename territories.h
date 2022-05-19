@@ -88,6 +88,13 @@ public:
     }
 
     bool guess_codeword(const char *guess, int team) {
+#if 1
+        print("Team #");
+        print(team);
+        print(" guessed codeword '");
+        print(guess);
+        println("'");
+#endif 0
         if      (!strcmp(guess, "BADNEWS")) {
             if (progress[team] == 0) {
                 add_owner_to_territory(team, HORSERACE_TERRITORY);
@@ -200,7 +207,8 @@ private:
     // 5 --> Go to Bridge or Annenberg
     // 6 --> Open suitcases and go to Wedding Cake
     // 7 --> Done!
-    byte progress[2] = {0};
+    // Note: progress[0] is unused
+    byte progress[3] = {0};
 
     byte horserace_winner = TEAM_NEITHER;
     byte horserace_loser  = TEAM_NEITHER;

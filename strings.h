@@ -45,7 +45,15 @@ char *retrieve_string(int idx) {
 
     memset(buff, '\0', sizeof(buff));
     strcpy_P(buff, (char *)pgm_read_word(&(string_table[idx])));  // Necessary casts and dereferencing, just copy.
+
+#if 1
+    print("Requested string #");
+    print(idx);
+    print(", returned string '");
+    print(buff);
+    println("'");
     return buff;
+#endif
 }
 
 #endif // STRINGS_H
