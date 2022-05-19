@@ -6,24 +6,16 @@
 #include "territories.h"
 #include "strings.h"
 
+// Pins for the keyboard
 const int DATA  = 1;
 const int CLOCK = 2;
 
-// possibly saves on memory by declaring strings here
-//const char *team1_name = "Team Pacino";
-//const char *team2_name = "Team Pacino";
-//const char *directions_choice = "Get directions";
-//const char *input_codeword_choice = "Input codeword";
-//const char *message_correct = "Correct!";
-//const char *message_incorrect = "Incorrect. You may choose to continue to the next location.";
-//const char *terr_unlocked_msg = "New Territory Unlocked";
-//const char *keep_trying_choice = "Keep trying";
-//const char *skip_puzzle_choice = "Skip Puzzle";
+const int LIGHT_UPDATE_INTERVAL = 100; // in milliseconds
 
-// red 5v, black ground, white data, green clock
+// Display wiring: red 5v, black ground, white data, green clock
 Display lcd;
 
-// red 5v, white ground, green data
+// LED wiring: red 5v, white ground, green data
 Territories territories;
 
 //void scan_I2C_devices();
@@ -52,32 +44,46 @@ void setup()
 
 void loop() {
 
+  // Choose between "Get directions" and "Input Keyword"
   int directions_or_codeword = lcd.get_user_choice(retrieve_string(2), retrieve_string(3));
-  int team = lcd.get_user_choice(retrieve_string(0), retrieve_string(1));
 
-  char msg[20] = {'\0'};
+  // Choose between "Team Pacino" and "Team Brando"
+  int team = lcd.get_user_choice(retrieve_string(0), retrieve_string(1));
 
   if (directions_or_codeword == 0)
   {  
     // Want directions
     const char *directions = territories.get_directions(team);
-    strcat(msg, "Go to ");
-    strcat(msg, directions);
-    lcd.display_message(msg);
+
+    // Using global buff from strings.h to save on memory
+    memset(buff, '\0', sizeof(buff));
+    strcat(buff, "Go to ");
+    strcat(buff, directions);
+    lcd.display_message(buff);
   } else 
   {
     // Want to input codeword
+
+    // Prompt with "Input codeword" and wait for answer
     char *codeword = lcd.get_user_input(retrieve_string(3));
+    
     if (territories.guess_codeword(codeword, team)) {
       // Got it right!
+      // Display "Correct!"
       lcd.display_message(retrieve_string(4));
+
+      // Display "New territory unlocked!"
+      lcd.display_message(retrieve_string(6));
+      
     } else {
       // Got it wrong
+      // Display "Incorrect, try again or skip"
       lcd.display_message(retrieve_string(5));
       
-      // Maybe we want to give them the option to skip anyway
+      // Select between "Keep trying" and "Skip"
       int force_progress = lcd.get_user_choice(retrieve_string(7), retrieve_string(8));
       if (force_progress) {
+        // Display "New territory unlocked!"
         lcd.display_message(retrieve_string(6));
         territories.force_progress(team);  
       }
@@ -125,10 +131,9 @@ ISR(PCINT1_vect)      // interrupt service routine
 SIGNAL(TIMER0_COMPA_vect) 
 {
   unsigned long currentMillis = millis();
-  if (currentMillis % 100 == 0) {
+  if (currentMillis % LIGHT_UPDATE_INTERVAL == 0) {
       territories.tick_lights();
   }
-
 }
 //
 //void scan_I2C_devices() {

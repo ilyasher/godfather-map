@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 
 const char KEY_ENTER = '\n';
 const char KEY_UP = '>';

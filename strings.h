@@ -35,7 +35,7 @@ const char string_14[] PROGMEM = "Bridge 210";
 const char *const string_table[] PROGMEM = {string_0, string_1, string_2, string_3, string_4, string_5,
   string_6, string_7, string_8, string_9, string_10, string_11, string_12, string_13, string_14};
 
-char buff[30];  // make sure this is large enough for the largest string it must hold
+char buff[64];  // make sure this is large enough for the largest string it must hold
 
 char *retrieve_string(int idx) {
     /* Using the string table in program memory requires the use of special functions to retrieve the data.

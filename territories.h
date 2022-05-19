@@ -3,39 +3,59 @@
 #include <FastLED.h>
 #include "strings.h"
 
+// "const int" uses no additional memory
 const int NUM_LEDS = 290;
 const int LED_DATA_PIN = 7;
 
+const int TEAM_NEITHER = 0b00;
+const int TEAM1        = 0b01;
+const int TEAM2        = 0b10;
+const int TEAM_BOTH    = 0b11;
+
 class Territories {
 public:
-    enum team_t {
-        TEAM1 = 0,
-        TEAM2,
-        TEAM_NEITHER,
-        TEAM_BOTH,
-    };
 
     Territories() {}
 
     void init() {
         FastLED.addLeds<NEOPIXEL, LED_DATA_PIN>(leds, NUM_LEDS);
-        for (int i = 0; i < 1; i+=10) {
-            leds[i] = CRGB::Red;
-        }
+
+        // Turn on a Red light so we know this works
+        leds[0] = CRGB::Red;
+
         FastLED.show();
     }
 
     // move the lights around in a circle around the different territories
     // called every 100ms or so
     void tick_lights(void) {
-        Serial.println("ticked");
+        Serial.println("ticked"); // debug
+
+        // Turn all the lights off
         memset(leds, CRGB::Black, sizeof(*leds) * NUM_LEDS);
+
+        // Celebration
+        if (progress[0] == 7) {
+            for (int i = 0; i < NUM_LEDS; i++) {
+                if ((i + light_clock) % 30 == 0) {
+                    leds[i] = CRGB::Green;
+                }
+            }
+            FastLED.show();
+            light_clock++;
+            return;
+        }
+
+        // For each territory, turn a single light on. 
         for (int terr_i = 0; terr_i < NUM_TERRITORIES; terr_i++) {
+
+            // Calculate the index of the light to turn on
             int start_i = leds_start_end[terr_i][0];
             int end_i   = leds_start_end[terr_i][1];
             int len = end_i - start_i + 1;
             int index = start_i + (light_clock % len);
-//            leds[index] = CRGB::Orange;
+
+            
             switch (ownership_status[terr_i]) {
                 case TEAM1:
                     leds[index] = CRGB::Orange;
@@ -44,6 +64,7 @@ public:
                     leds[index] = CRGB::Blue;
                     break;
                 case TEAM_BOTH:
+                    // Alternate Blue/Orange with every tick
                     if (index % 2 == 0) {
                         leds[index] = CRGB::Blue;
                     } else {
@@ -59,46 +80,89 @@ public:
     }
 
     inline const char *get_directions(int team) {
-        return territory_to_name((territory_name_t) progress[team]);
+        return territory_to_name(get_next_territory(team));
     }
 
-    inline team_t get_horserace_winner() {
+    inline int get_horserace_winner() {
         return ownership_status[HORSERACE_TERRITORY];
     }
 
-    bool guess_codeword(const char *guess, int team_as_int) {
-        team_t team = (team_t) team_as_int;
-        if      (!strcmp(guess, "YEEHAW")) {
-            add_owner_to_territory(team, HORSERACE_TERRITORY);
-            progress[TEAM1]++;
-            progress[TEAM2]++;
-            return true;
+    bool guess_codeword(const char *guess, int team) {
+        if      (!strcmp(guess, "BADNEWS")) {
+            if (progress[team] == 0) {
+                add_owner_to_territory(team, HORSERACE_TERRITORY);
+
+                horserace_winner = team;
+                horserace_loser  = (TEAM1 + TEAM2) - team; // Math is a beautiful thing
+
+                // Both teams progress
+                progress[TEAM1]++;
+                progress[TEAM2]++;
+                return true;
+            }
         }
         else if (!strcmp(guess, "GODCHILD")) {
-            add_owner_to_territory(team, FEAR_TERRITORY);
-            progress[team]++;
-            return true;
+            if ((team == horserace_winner && progress[team] == 1)
+              ||(team == horserace_loser  && progress[team] == 2)) {
+                add_owner_to_territory(team, FEAR_TERRITORY);
+                progress[team]++;
+                return true;
+            }
         }
         else if (!strcmp(guess, "BLACKERJACK")) {
-            add_owner_to_territory(team, ATH_TERRITORY);
-            progress[team]++;
-            return true;
-        }
-        else if (!strcmp(guess, "WHATASTUD")) {
-            // small bug - the winning team can use the same code to reclaim the territory
-            // because get_horserace_winner is changed
-            if (team != get_horserace_winner()) {
-                ownership_status[HORSERACE_TERRITORY] = TEAM1; // FIXME;
-            } else {
-                // TODO they're not allowed to do this!
+            if ((team == horserace_winner && progress[team] == 2)
+              ||(team == horserace_loser  && progress[team] == 1)) {
+                add_owner_to_territory(team, ATH_TERRITORY);
+                progress[team]++;
+                return true;
             }
-            return true;
+        }
+        else if (!strcmp(guess, "UNLUCKY")) {
+            if ((!horsehead_complete) && (team == horserace_loser)) {
+                ownership_status[HORSERACE_TERRITORY] = team;
+                horsehead_complete = true;
+                return true;
+            }
+        }
+        else if (!strcmp(guess, "BRIBE")) {
+            if (progress[team] == 3) {
+                // Joint effort, both teams get added to the territory
+                add_owner_to_territory(TEAM_BOTH, ARMS_TERRITORY);
+
+                // Both teams progress
+                progress[TEAM1]++;
+                progress[TEAM2]++;
+                return true;
+            }
+        }
+        else if (!strcmp(guess, "CAUSEWAY")) {
+            if ((team == TEAM1 && progress[team] == 4)
+              ||(team == TEAM2 && progress[team] == 5)) {
+                add_owner_to_territory(team, BRIDGE_TERRITORY);
+                progress[team]++;
+                return true;
+            }
+        }
+        else if (!strcmp(guess, "TATTAGLIA")) {
+            if ((team == TEAM1 && progress[team] == 5)
+              ||(team == TEAM2 && progress[team] == 4)) {
+                add_owner_to_territory(team, ANNENBERG_TERRITORY);
+                progress[team]++;
+                return true;
+            }
+        }
+        else if (!strcmp(guess, "CUPCAKE")) {
+            if (progress[team] == 6) {
+                add_owner_to_territory(team, GATES_TERRITORY);
+                progress[TEAM1]++;
+                progress[TEAM2]++;
+                return true;
+            }
         }
         return false;
     }
 
     void force_progress(int team) {
-        // TODO
         progress[team]++;
     }
 
@@ -108,6 +172,7 @@ private:
         ANNENBERG_TERRITORY = 0,
         ATH_TERRITORY,
         BRIDGE_TERRITORY,
+        ARMS_TERRITORY,
         GATES_TERRITORY,
         FEAR_TERRITORY,
         HORSERACE_TERRITORY,
@@ -118,37 +183,41 @@ private:
     const int leds_start_end[NUM_TERRITORIES][2] = {
         {7, 95},
         {97, 132},
-        {133, 182},
+        {133, 150},
+        {151, 182},
         {183, 217},
         {218, 249},
         {250, 289}
     };
 
-    team_t ownership_status[NUM_TERRITORIES] = {TEAM_NEITHER};
+    int ownership_status[NUM_TERRITORIES] = {TEAM_NEITHER};
+
+    // 0 --> Go to Horse race
+    // 1 --> Go to Fear or Ath
+    // 2 --> Go to Ath or Fear
+    // 3 --> Go to Senator's Office
+    // 4 --> Go to Annenberg or Bridge
+    // 5 --> Go to Bridge or Annenberg
+    // 6 --> Open suitcases and go to Wedding Cake
+    // 7 --> Done!
     byte progress[2] = {0};
+
+    byte horserace_winner = TEAM_NEITHER;
+    byte horserace_loser  = TEAM_NEITHER;
+
+    // Flip to true once the losing horserace team sends the picture
+    // and enters the revenge password
+    bool horsehead_complete = false;
     
     unsigned int light_clock = 0;
     
     CRGB leds[NUM_LEDS];
 
-    void add_owner_to_territory(team_t owner, territory_name_t territory) {
-        if (owner == TEAM1) {
-            if (ownership_status[territory] == TEAM2) {
-                ownership_status[territory] = TEAM_BOTH;
-            } else {
-                ownership_status[territory] = TEAM1;
-            }
-        } else if (owner == TEAM2) {
-            if (ownership_status[territory] == TEAM1) {
-                ownership_status[territory] = TEAM_BOTH;
-            } else {
-                ownership_status[territory] = TEAM2;
-            }
-        }
+    void add_owner_to_territory(int new_owner, territory_name_t territory) {
+        ownership_status[territory] |= new_owner;
     }
     
     inline const char *territory_to_name(territory_name_t t) {
-//        return territory_names[(int) t];
         switch (t) {
             case HORSERACE_TERRITORY:    return retrieve_string(9);
             case GATES_TERRITORY:        return retrieve_string(10);
@@ -160,12 +229,15 @@ private:
         }
     }
 
-//    const char * territory_names[6] = {
-//        "Annenberg Lounge", 
-//        "the Einstein Casino in the Ath",
-//        "Bridge 210",
-//        "Gates-Thomas 314",
-//        "Fear",
-//        "Field South of Gene Pool",
-//    };
+    territory_name_t get_next_territory(int team) {
+        switch (progress[team]) {
+            case 0: return HORSERACE_TERRITORY;
+            case 1: return team == horserace_loser ? ATH_TERRITORY : FEAR_TERRITORY;
+            case 2: return team == horserace_loser ? FEAR_TERRITORY : ATH_TERRITORY;
+            case 3: return ARMS_TERRITORY;
+            case 4: return team == TEAM1 ? BRIDGE_TERRITORY : ANNENBERG_TERRITORY;
+            case 5: return team == TEAM2 ? BRIDGE_TERRITORY : ANNENBERG_TERRITORY;
+            default: return GATES_TERRITORY;
+        }
+    }
 };

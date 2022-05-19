@@ -141,6 +141,7 @@ private:
     const char *prompt = "> ";
     const int prompt_length = 2;
 
+    // Displaying a long message requires the text to scroll.
     void display_long_message(const char *msg) {
         clear_screen();
         lcd.print(msg);
@@ -151,15 +152,18 @@ private:
         while (key != '\n') {
             lcd.setCursor(0,0);
             lcd.print(&msg[idx]);
-  
+
+            // Pause at the beginning of the message for 1000ms
             if (idx == 0) {
                 delay_with_enter_break(1000);
             }
             
             idx ++;
-            
+
+            // Scroll delay. Adjust to make text scroll faster/slower
             delay_with_enter_break(300);
-            
+
+            // Pause at the end of the message for 1000ms
             if (idx + 16 > len) {
                 idx = 0;
                 delay_with_enter_break(1000);
