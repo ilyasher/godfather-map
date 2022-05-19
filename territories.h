@@ -158,7 +158,7 @@ public:
                 return true;
             }
         }
-        else if (!strcmp(guess, "TATTAGLIA")) {
+        else if (!strcmp(guess, "STRACCI")) {
             if ((team == TEAM2 && progress[team] == 5)
               ||(team == TEAM1 && progress[team] == 4)) {
                 add_owner_to_territory(team, ANNENBERG_TERRITORY);
