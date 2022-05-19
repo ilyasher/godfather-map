@@ -47,13 +47,13 @@ char *retrieve_string(int idx) {
     strcpy_P(buff, (char *)pgm_read_word(&(string_table[idx])));  // Necessary casts and dereferencing, just copy.
 
 #if 1
-    print("Requested string #");
-    print(idx);
-    print(", returned string '");
-    print(buff);
-    println("'");
-    return buff;
+    Serial.print("Requested string #");
+    Serial.print(idx);
+    Serial.print(", returned string '");
+    Serial.print(buff);
+    Serial.println("'");
 #endif
+    return buff;
 }
 
 #endif // STRINGS_H

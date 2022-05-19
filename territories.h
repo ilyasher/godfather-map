@@ -89,12 +89,12 @@ public:
 
     bool guess_codeword(const char *guess, int team) {
 #if 1
-        print("Team #");
-        print(team);
-        print(" guessed codeword '");
-        print(guess);
-        println("'");
-#endif 0
+        Serial.print("Team #");
+        Serial.print(team);
+        Serial.print(" guessed codeword '");
+        Serial.print(guess);
+        Serial.println("'");
+#endif
         if      (!strcmp(guess, "BADNEWS")) {
             if (progress[team] == 0) {
                 add_owner_to_territory(team, HORSERACE_TERRITORY);
